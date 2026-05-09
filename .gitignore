@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual env
+.venv/
+venv/
+
+# Build
+build/
+dist/
+release/
+
+# PyInstaller
+*.spec
+
+# VSCode
+.vscode/
+
+# Temp
+*.log
+
+# Images temp
+test.png
+
+# OS
+.DS_Store
+Thumbs.db
