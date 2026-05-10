@@ -40,7 +40,7 @@ class dataCof:
                 "h": region["h"]
             }
     
-    def set_recipient_position(self, rect):
+    def set_recipient_rect(self, rect):
         self.templates_pos["target"] = {
             "x" : rect[0],
             "y" : rect[1],

@@ -27,6 +27,7 @@ class state(Enum):
 
 class Bot:
     def __init__(self, vision: Vision, window_handler: GameWindow, dataCof :data, find :Find, setup: Setup,transfer:Transfer):
+        keyboard.add_hotkey("esc", self.must_stop)
         self._current_state = state.DEFAULT
         # config main loop
         self._is_running = True
@@ -70,7 +71,7 @@ class Bot:
             try:
                 time.sleep(.2)
                 recipient_pos = vision.get_template_rect(window.rect,"target")
-                self.data.set_recipient_position(recipient_pos)
+                self.data.set_recipient_rect(recipient_pos)
                 self.change_state(state.FIND_TARGET)
                 return
             except Exception as er:
@@ -87,7 +88,7 @@ class Bot:
             self.find.set_action([
                 "target",
                 "btn_assistance",
-            ],True)
+            ],None,True)
             self.find_target_index = 1
         else:
             if not self.find.running:
@@ -99,12 +100,13 @@ class Bot:
 
     def setup_transfer(self):
         if self.setup.SetUp() == True:
-            self.change_state(state.DONE)
+            self.change_state(state.TRANSFER)
             return
     def Transfer_RSS(self):
-        if self.transfer.Do_Transfer():
-            self.change_state(state.DONE)
-            return
+        self.transfer.Do_Transfer()
+        #if self.transfer.Do_Transfer():
+        #    self.change_state(state.DONE)
+        #    return
     def start_delay(self,delay):
         if not self.delay_running:
             self.timer = time.time() + delay
@@ -117,12 +119,18 @@ class Bot:
             self.delay_running = False
             return True
         return False
-    
+    def must_stop(self):
+        if keyboard.is_pressed("esc"):
+            print("Đã thoát chương trình")
+            return True
+
     def run(self):
         last_time = time.time()
         frame_perriod = 1 / self.fps    
 
         while self._is_running:
+            if self.must_stop():
+                break
             now = time.time()
             delta = now - last_time
             last_time = now
@@ -165,6 +173,7 @@ class Bot:
             pass    
         elif state == state.TRANSFER:
             print("Entering state: TRANSFER")
+            self.transfer.prin_data()
         elif state == state.DONE:
             print("Entering state: DONE")
         self.step_done = False

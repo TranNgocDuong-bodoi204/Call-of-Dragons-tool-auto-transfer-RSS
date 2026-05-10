@@ -88,7 +88,7 @@ class Vision:
 #endregion
     def get_template_rect(self, rect, template_Name :str, threshold = .85):
         img = self.get_image_by_rect(rect=rect)
-        template_img = self.get_template(template_Name)
+        template_img = self.get_template(template_Name) # lấy ảnh target để tính H W
         match = cv.matchTemplate(image=img,templ=template_img,method=cv.TM_CCOEFF_NORMED)
         _, maxVal,_,maxLoc = cv.minMaxLoc(match)
 

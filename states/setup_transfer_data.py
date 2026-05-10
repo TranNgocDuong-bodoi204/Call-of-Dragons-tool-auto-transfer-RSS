@@ -49,12 +49,13 @@ class SetUp_Transfer:
         if not self.flag:
             self.find.set_action([
                 "btn_open_gold_num_pad",
-                "btn_9",
-                "btn_8",
-                "btn_7",
-                "btn_6",
                 "btn_5",
-                "btn_9",
+                "btn_0",
+                "btn_0",
+                "btn_0",
+                "btn_0",
+                "btn_0",
+                "btn_0",
                 "btn_copy",
                 "btn_confirm",
                 "btn_back"

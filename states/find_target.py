@@ -15,6 +15,8 @@ txt_ore = "ore"
 txt_tax = "tax"
 txt_time = "time"
 
+default_radius = 5
+
 class OcrStep(Enum):
     GOLD = auto()
     WOOD = auto()
@@ -44,6 +46,7 @@ class Find_And_Click_Target:
         self.action_queue = queue.Queue()
         self.current_target_name = ""
         self.rect = self.win.rect
+        self.radius_around = 5
         self.target_position = (0,0)
 
         # step variable
@@ -55,12 +58,19 @@ class Find_And_Click_Target:
         self.move_step = .1
         self.t = 0
 
-    def set_action(self,action,rect = None, need_scan = True):
+    def set_action(self,action,rect = None, need_scan = True, radius = None):
         if self.can_set_new_action and not self.running:
             for i in range(0, len(action)):
                 self.action_queue.put(action[i])
             if rect is None:
                 self.rect = self.win.rect
+            else:
+                self.rect = rect
+            if radius is None:
+                self.radius_around =default_radius
+            else:
+                self.radius_around = radius
+
             self.running = True
             self.can_set_new_action = False 
             self.is_need_scan = need_scan 
@@ -82,7 +92,6 @@ class Find_And_Click_Target:
 
 
     def move_template(self,current_target_string, delta):
-        info = self.get_target_config(current_target_string)
         if self.step_index == 0: # lấy vị trí của target
             # nếu cần scan thì chụp ảnh trong vùng rect rồi so sánh với template trong dictionary
             # trả về location và gán cho target
@@ -93,9 +102,9 @@ class Find_And_Click_Target:
                         self.target_position == (0,0)
                         self.step_start = False
                     
-                    screenshot = self.vs.get_image_by_rect(info["rect"])
+                    screenshot = self.vs.get_image_by_rect(self.rect)
                     self.target_position = self.vs.get_template_location(
-                        rect= info["rect"],
+                        rect= self.rect,
                         screen_shot= screenshot,
                         template_name= current_target_string,
                         threshold= .95) 
@@ -114,12 +123,12 @@ class Find_And_Click_Target:
                 
         elif self.step_index == 1: # di chuyển đến target
             try:
-                if self.step_start:
+                if self.step_start: 
                     self.t = 0
-                    self.target_position = ac.random_position_around(self.target_position,radius=info["rad"])
+                    self.target_position = ac.random_position_around(self.target_position,self.radius_around)
                     self.mouse_pos = ac.get_mouse_pos()
                     self.neo = ac.get_neo(self.target_position)
-                    self.move_step = random.uniform(0.05,0.1)
+                    self.move_step = random.uniform(0.04,0.1)
                     self.step_start = False
                 self.t += self.move_step
                 self.t = min(self.t, 1)
@@ -209,69 +218,4 @@ class Find_And_Click_Target:
             print(f"Error ocr_target - step: {self.ocr_step} - {e}")
             return False
 
-        """
-        try:
-            if self.ocr_finished == True:
-                if self.data.target_data["time"] is None or self.data.target_data["tax"] is None:
-                    self.img_tax = self.vs.get_image(self.data.get_template_rect(txt_tax))
-                    self.img_time = self.vs.get_image(self.data.get_template_rect(txt_time))
-                    self.tax = self.vs.ocr(img=self.img_tax)
-                    self.time = self.vs.ocr(img=self.img_time)
-                    if self.tax is not None and self.time is not None:
-                        self.data.set_tax(tax=self.tax)
-                        self.data.set_time(time=self.time)
-                        return True
-                    else:
-                        return False
-                else:
-                    return True
-            else:
-                self.img_gold = self.vs.get_image(self.data.get_template_rect(txt_gold))
-                self.img_wood = self.vs.get_image(self.data.get_template_rect(txt_wood))
-                self.img_ore  = self.vs.get_image(self.data.get_template_rect(txt_ore))
-                self.img_tax = self.vs.get_image(self.data.get_template_rect(txt_tax))
-                self.img_time = self.vs.get_image(self.data.get_template_rect(txt_time))
-
-                # lấy thông tin từ ảnh
-                self.gold = self.vs.ocr(img=self.img_gold)
-                self.wood = self.vs.ocr(img=self.img_wood)
-                self.ore = self.vs.ocr(img=self.img_ore)
-                self.tax = self.vs.ocr(img=self.img_tax)
-                self.time = self.vs.ocr(img=self.img_time)
-
-                self.data.set_target_data(
-                    self.tax,
-                    self.gold,
-                    self.wood,
-                    self.ore,
-                    self.time
-                )
-                self.ocr_finished = True
-                if self.data.target_data["time"] is not None and self.data.target_data["tax"] is not None:
-                    # lưu thông tin vào ram
-                    print(f"tét khi time is not None {self.data.target_data["time"]}")
-                    return True
-                else:
-                    return False
-        except Exception as e:
-            self.step_done = False
-            print(f"Error find_target_state -ocr-: - index: {self.ocr_finished} - {e}") 
-            return False
-        """
-    def get_target_config(self,name):
-        if name == "btn_0_open_numpad":
-            return{
-                "rect" : self.data.get_template_rect("btn_0_open_numpad"),
-                "rad"  : 0.05
-            }
-        elif name == "btn_open_gold_num_pad":
-            return{
-                "rect": self.data.get_template_rect("btn_open_gold_num_pad"),
-                "rad": 0.01
-            }
-        else:
-            return {
-                "rect": self.win.rect,
-                "rad" : 10
-            }
-        
+    
