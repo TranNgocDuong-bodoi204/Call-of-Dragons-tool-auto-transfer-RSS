@@ -31,7 +31,7 @@ class Transfer:
 
         self.step_index = DETAIL_TRANSFER_STEP.TARGET
 
-        self.gold_transport_count = 5
+        self.gold_transport_count = 0
         self.wood_transport_count = 0
         self.ore_transport_count = 0
         self.transport_index = 0
@@ -75,7 +75,7 @@ class Transfer:
         if self.ore_transport_count <= 0:
             self.type == TRANSFER_TYPE.Done
             self.is_set_num_rect = False
-            return
+        self.transfer()
     
     def transfer(self):
         if not self.is_set_num_rect:
@@ -83,8 +83,6 @@ class Transfer:
             self.numPad_rect = rs["num_pad"]
             self.numBoard_rect = rs["num_board"]
             self.is_set_num_rect = True
-            print(self.numPad_rect)
-            print(self.numBoard_rect)
         
         #click player
         if self.step_index == DETAIL_TRANSFER_STEP.TARGET:
@@ -92,10 +90,10 @@ class Transfer:
                 self.find.set_action(["target"],None,False)
                 self.step_start = False
             if self.find.running == False:
-                time.sleep(.5)
+                time.sleep(.6)
                 scr = self.vision.get_image_by_rect(self.window.rect)
-                gtm = self.vision.is_template_match(scr,"board_assistance",.85)
-                if gtm is not None:
+                tm = self.vision.is_template_match(scr,"board_assistance",.85)
+                if tm is not None:
                     self.step_start = True # reset lại để qua step tiếp theo
                     self.step_index = DETAIL_TRANSFER_STEP.ASSISTANCE
                 else:
@@ -106,7 +104,7 @@ class Transfer:
                 self.step_start = False
                 self.find.set_action(["btn_assistance"],None,True)
             if not self.find.running:
-                time.sleep(.1)
+                time.sleep(.05)
                 self.step_index = DETAIL_TRANSFER_STEP.NUMBER_PAD
                 self.step_start = True
         elif self.step_index == DETAIL_TRANSFER_STEP.NUMBER_PAD:
@@ -114,6 +112,11 @@ class Transfer:
                 self.step_start = False
                 self.find.set_action(["num_pad"], self.numPad_rect,True)
             if not self.find.running:
+                time.sleep(.1)
+                scr = self.vision.get_image_by_rect(
+                    self.data.get_template_rect("num_board_rect")
+                )
+                ntm = self.vision.is_template_match(scr,"board_num",.85)
                 self.step_start = True
                 self.step_index = DETAIL_TRANSFER_STEP.TRANSPORT
 
@@ -135,13 +138,12 @@ class Transfer:
                     self.find.set_action(["btn_transport"],None,False)
                     self.step_start = False
                 if not self.find.running:
+                    time.sleep(.1)
                     self.transport_index = 0
                     self.step_index = DETAIL_TRANSFER_STEP.STEP_FINISH
         
         elif self.step_index == DETAIL_TRANSFER_STEP.STEP_FINISH:
-            print(f"hoàn thành 1 lần vận chuyển, số lượng còn lại{self.gold_transport_count}")
             self.when_finished_a_transport()
-            
                 
     def when_finished_a_transport(self):
         if self.type == TRANSFER_TYPE.Gold:

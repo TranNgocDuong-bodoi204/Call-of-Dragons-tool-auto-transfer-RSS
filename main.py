@@ -1,5 +1,7 @@
 from enum import Enum
+import os
 import random
+import sys
 
 import win32api
 import win32con
@@ -172,6 +174,13 @@ class Bot:
         elif state == state.SETUP_TRANSFER:
             pass    
         elif state == state.TRANSFER:
+            gtt  = self.data.transfer_data["gtt"]
+            wtt = self.data.transfer_data["wtt"]
+            ott = self.data.transfer_data["ott"]
+            self.transfer.set_transport_count(
+                gold=gtt,
+                wood=wtt,
+                ore=ott)
             print("Entering state: TRANSFER")
             self.transfer.prin_data()
         elif state == state.DONE:
@@ -213,17 +222,21 @@ class Bot:
         self._is_running = False
         print("Bot stopped.")
 
-
+def get_base_path():
+    if getattr(sys, 'frozen', False):  # đang chạy trong exe
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))  # đang chạy bình thường
 
 if __name__ == "__main__":
     # setup
     ctypes.windll.user32.SetProcessDPIAware()
     window = GameWindow("Call of Dragons")
     window.setup_window()
-    vision = Vision("templates")
+    base = get_base_path()
+    vision = Vision(os.path.join(base, "templates"))
 
 
-    dCof = data(rect=window.rect)
+    dCof = data(rect=window.rect,path= os.path.join(base,"regions.json"))
     find = Find(vision=vision,windows=window,dt=dCof)
     set = Setup(dt=dCof,find=find)
     transfer = Transfer(vs=vision,game=window,dt=dCof,find=find)

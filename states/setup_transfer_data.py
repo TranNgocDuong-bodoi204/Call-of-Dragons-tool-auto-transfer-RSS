@@ -36,13 +36,9 @@ class SetUp_Transfer:
         wtt = math.floor(w / t_amount)
         ott = math.floor(o / t_amount)
         t = self.data.target_data["time"]*2 + 2
-        self.data.set_transfer_data(5,wtt,ott,t)
+        self.data.set_transfer_data(gtt,wtt,ott,t)
 
         print(f"Set up data hoàn thành")
-        print(f"{self.data.transfer_data["gtt"]}")
-        print(f"{self.data.transfer_data["wtt"]}")
-        print(f"{self.data.transfer_data["ott"]}")
-        print(f"{self.data.transfer_data["t"]}")
         return True
     
     def do_setup_transfer_move(self):

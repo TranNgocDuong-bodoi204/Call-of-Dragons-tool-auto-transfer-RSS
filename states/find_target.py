@@ -32,6 +32,13 @@ class Find_And_Click_Target:
         self.win = windows
         self.data = dt
 
+        self.move_step_min = 0.06
+        self.move_step_max = 0.15
+        self.mouse_down_time_min = 0.1
+        self.mouse_down_time_max = 0.2
+        self.mouse_up_time_min = 0.1
+        self.mouse_up_time_max = 0.2
+
         self.step_index = 0 # default
         self.ocr_step = OcrStep.GOLD
         self.ocr_finished = False
@@ -128,7 +135,7 @@ class Find_And_Click_Target:
                     self.target_position = ac.random_position_around(self.target_position,self.radius_around)
                     self.mouse_pos = ac.get_mouse_pos()
                     self.neo = ac.get_neo(self.target_position)
-                    self.move_step = random.uniform(0.04,0.1)
+                    self.move_step = random.uniform(self.move_step_min,self.move_step_max)
                     self.step_start = False
                 self.t += self.move_step
                 self.t = min(self.t, 1)
@@ -143,8 +150,8 @@ class Find_And_Click_Target:
             try:
                 if self.step_start:
                     self.step_time = 0
-                    self.down_time = random.uniform(0.1, 0.2)
-                    self.up_time = self.down_time + random.uniform(0.1, 0.2)
+                    self.down_time = random.uniform(self.mouse_down_time_min, self.mouse_down_time_max)
+                    self.up_time = self.down_time + random.uniform(self.mouse_up_time_min, self.mouse_up_time_max)
                     self.mouse_is_down = False
                     self.step_start = False
                 

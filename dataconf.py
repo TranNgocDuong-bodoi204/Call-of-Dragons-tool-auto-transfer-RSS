@@ -1,9 +1,9 @@
 from pathlib import Path
 import json
 class dataCof:
-    def __init__(self, rect):
+    def __init__(self, rect, path):
         # template position
-        self.path = "regions.json"
+        self.path = path
         
         # conf
         self.templates_pos = {}
